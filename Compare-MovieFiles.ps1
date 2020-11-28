@@ -31,7 +31,7 @@
         [switch]$Test = $false
     )
 
-#ScriptVersion = "1.0.1.2"
+#ScriptVersion = "1.0.1.3"
 
 $old = Get-ChildItem -Path $CurrentMovieDirectory
 $new = Get-ChildItem -Path $NewMovieDirectory
@@ -44,7 +44,8 @@ if ($Results)
     "`n"
     $Results.Name
     "`n"
-    $Answer = Read-Host "Copy new versions to Movie directory (y/n)? ($CurrentMovieDirectory)"
+    Write-Host "Copy new versions to Movie directory ($CurrentMovieDirectory)?" -ForegroundColor Magenta
+    $Answer = Read-Host "Y/N?"
     if ($Answer -match "[Yy]")
     {
         foreach ($Result in $Results.Name)
@@ -69,10 +70,10 @@ if ($Results)
             foreach ($MovieItem in $MovieComparison)
             {
                 $MovieItemName = $MovieItem.Name
+                $MovieItemTempPath = Join-Path -Path $TempMovieDirectory -ChildPath $MovieItemName
                 Write-Host "Processing file: $MovieItemName" -ForegroundColor Blue
                 try
                 {
-                    $MovieItemTempPath = Join-Path -Path $TempMovieDirectory -ChildPath $MovieItemName
                     # If file exists in both folders, copy new version over
                     if ($MovieItem.SideIndicator -like "==")
                     {
@@ -94,7 +95,8 @@ if ($Results)
                         # 4K version
                         if ($MovieItemName -like "$Result - 4K*")
                         {
-                            $Answer2 = Read-Host "Existing 4K version not detected, copy over and rename existing files?"
+                            Write-Host "New 4K version detected, copy over and rename existing files?" -ForegroundColor Magenta
+                            $Answer2 = Read-Host "Y/N?"
                             if ($Answer2 -match "[Yy]")
                             {
                                 try
@@ -173,7 +175,8 @@ if ($Results)
                                 {
                                     Write-Host $File.FullName -ForegroundColor Blue
                                 }
-                                $Answer2 = Read-Host "Copy over new item? ($MovieItemName)"
+                                Write-Host "Copy over new item ($MovieItemName)?" -ForegroundColor Magenta
+                                $Answer2 = Read-Host "Y/N?"
                             }
 
                             if ($Answer2 -match "[Yy]")
