@@ -31,7 +31,7 @@
         [switch]$Test = $false
     )
 
-#ScriptVersion = "1.0.1.0"
+#ScriptVersion = "1.0.1.1"
 
 $old = Get-ChildItem -Path $CurrentMovieDirectory
 $new = Get-ChildItem -Path $NewMovieDirectory
@@ -100,7 +100,8 @@ if ($Results)
                                 try
                                 {
                                     Write-Host "Copying over 4K file..." -ForegroundColor Blue
-                                    Move-Item -Path $MovieItemTempPath -Destination $FinalMoviePath -Force -PassThru -ErrorAction Stop -WhatIf:$Test
+                                    Move-Item -Path $MovieItemTempPath -Destination $FinalMoviePath -Force -ErrorAction Stop -WhatIf:$Test
+                                    Write-Host "SUCCESS! Moved file ($MovieItemTempPath) to ($FinalMoviePath)" -ForegroundColor Green
                                     if (Test-Path $MP4MoviePath)
                                     {
                                         Write-Host "Renaming file: $MP4MoviePath" -ForegroundColor Blue
@@ -210,8 +211,9 @@ if ($Results)
             {
                 try
                 {
-                    Write-Host "Removing temp folder: ($TempMovieDirectory)"
+                    Write-Host "Removing temp folder: ($TempMovieDirectory)" -ForegroundColor Blue
                     Remove-Item -Path $TempMovieDirectory -Force -Recurse -ErrorAction Stop -WhatIf:$Test
+                    Write-Host "SUCCESS! Removed directory ($TempMovieDirectory" -ForegroundColor Green
                 }
                 catch
                 {
