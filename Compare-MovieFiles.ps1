@@ -31,7 +31,7 @@
         [switch]$Test = $false
     )
 
-#ScriptVersion = "1.0.1.3"
+#ScriptVersion = "1.0.1.4"
 
 $old = Get-ChildItem -Path $CurrentMovieDirectory
 $new = Get-ChildItem -Path $NewMovieDirectory
@@ -80,7 +80,7 @@ if ($Results)
                         try
                         {
                             Write-Host "File match, copying file over..." -ForegroundColor Blue
-                            Move-Item -Path $MovieItemTempPath -Destination $FinalMoviePath -Force -PassThru -ErrorAction Stop -WhatIf:$Test
+                            Move-Item -Path $MovieItemTempPath -Destination $FinalMoviePath -Force -ErrorAction Stop -WhatIf:$Test
                             Write-Host "SUCCESS! Moved file ($MovieItemTempPath) to ($FinalMoviePath)" -ForegroundColor Green
                         }
                         catch
