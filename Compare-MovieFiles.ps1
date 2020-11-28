@@ -31,7 +31,7 @@
         [switch]$Test = $false
     )
 
-#ScriptVersion = "1.0.1.1"
+#ScriptVersion = "1.0.1.2"
 
 $old = Get-ChildItem -Path $CurrentMovieDirectory
 $new = Get-ChildItem -Path $NewMovieDirectory
@@ -121,7 +121,7 @@ if ($Results)
                                         if (Test-Path $SRTMoviePath)
                                         {
                                             Write-Host "Renaming file: $SRTMoviePath" -ForegroundColor Blue
-                                            Rename-Item -Path $SRTMoviePath -NewName "$Result - HD.srt" -Force -PassThru -ErrorAction Stop -WhatIf:$Test
+                                            Rename-Item -Path $SRTMoviePath -NewName "$Result - HD.srt" -Force -ErrorAction Stop -WhatIf:$Test
                                             Write-Host "SUCCESS! Renamed file: $SRTMoviePath" -ForegroundColor Green
                                         }
                                         # Delete .NFO file
