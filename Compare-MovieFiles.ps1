@@ -31,7 +31,7 @@
         [switch]$Test = $false
     )
 
-#ScriptVersion = "1.0.0.0"
+#ScriptVersion = "1.0.1.0"
 
 $old = Get-ChildItem -Path $CurrentMovieDirectory
 $new = Get-ChildItem -Path $NewMovieDirectory
@@ -68,28 +68,38 @@ if ($Results)
 
             foreach ($MovieItem in $MovieComparison)
             {
-                Write-Host "Processing file: $($MovieItem.Name)" -ForegroundColor Blue
+                $MovieItemName = $MovieItem.Name
+                Write-Host "Processing file: $MovieItemName" -ForegroundColor Blue
                 try
                 {
-                    $MovieItemTempPath = Join-Path -Path $TempMovieDirectory -ChildPath $MovieItem.Name
+                    $MovieItemTempPath = Join-Path -Path $TempMovieDirectory -ChildPath $MovieItemName
                     # If file exists in both folders, copy new version over
                     if ($MovieItem.SideIndicator -like "==")
                     {
-                        Write-Host "File match, copying file over" -ForegroundColor Blue
-                        Copy-Item -Path $MovieItemTempPath -Destination $FinalMoviePath -Force -PassThru -ErrorAction Stop -WhatIf:$Test
+                        try
+                        {
+                            Write-Host "File match, copying file over..." -ForegroundColor Blue
+                            Move-Item -Path $MovieItemTempPath -Destination $FinalMoviePath -Force -PassThru -ErrorAction Stop -WhatIf:$Test
+                            Write-Host "SUCCESS! Moved file ($MovieItemTempPath) to ($FinalMoviePath)" -ForegroundColor Green
+                        }
+                        catch
+                        {
+                            Write-Host "Error encountered copying file ($MovieItemName)" -ForegroundColor Red
+                            exit
+                        }
                     }
                     # If file exists only in new folder
                     elseif ($MovieItem.SideIndicator -like "<=")
                     {
                         # 4K version
-                        if ($MovieItem.Name -like "$Result - 4K*")
+                        if ($MovieItemName -like "$Result - 4K*")
                         {
                             $Answer2 = Read-Host "Existing 4K version not detected, copy over and rename existing files?"
                             if ($Answer2 -match "[Yy]")
                             {
                                 try
                                 {
-                                    Write-Host "Copying over 4K file" -ForegroundColor Blue
+                                    Write-Host "Copying over 4K file..." -ForegroundColor Blue
                                     Move-Item -Path $MovieItemTempPath -Destination $FinalMoviePath -Force -PassThru -ErrorAction Stop -WhatIf:$Test
                                     if (Test-Path $MP4MoviePath)
                                     {
@@ -139,27 +149,45 @@ if ($Results)
                         else
                         {
                             # Skip interaction if relacing .MKV file with .MP4 file
-                            if (($MovieItem.Name -like "$Result.mp4") -and (Test-Path $MKVMoviePath))
+                            if (($MovieItemName -like "$Result.mp4") -and (Test-Path $MKVMoviePath))
                             {
-                                Write-Host "Copying new .MP4 file over existing .MKV file"
-                                Remove-Item -Path $MKVMoviePath -Force -ErrorAction Stop -WhatIf:$Test
-                                $Answer2 = "y"
+                                try
+                                {
+                                    Write-Host "Copying new .MP4 file over existing .MKV file" -ForegroundColor Blue
+                                    Remove-Item -Path $MKVMoviePath -Force -ErrorAction Stop -WhatIf:$Test
+                                    Write-Host "SUCCESS! Removed file: $MKVMoviePath" -ForegroundColor Green
+                                    $Answer2 = "y"
+                                }
+                                catch
+                                {
+                                    Write-Host "Error encountered copying file ($MovieItemName)" -ForegroundColor Red
+                                    exit
+                                }
                             }
                             else
                             {
-                                Write-Host "New file found: $($MovieItem.Name)"
-                                Write-Host "Existing movie files:"
+                                Write-Host "New file found: ($MovieItemName)" -ForegroundColor Blue
+                                Write-Host "Existing movie files:" -ForegroundColor Blue
                                 foreach ($File in $ExistingMovieFiles)
                                 {
-                                    Write-Host $File.FullName
+                                    Write-Host $File.FullName -ForegroundColor Blue
                                 }
-                                $Answer2 = Read-Host "Copy over new item? $($MovieItem.Name)"
+                                $Answer2 = Read-Host "Copy over new item? ($MovieItemName)"
                             }
 
                             if ($Answer2 -match "[Yy]")
                             {
-                                Write-Host "Permission granted, copying file over"
-                                Copy-Item -Path $MovieItemTempPath -Destination $FinalMoviePath -Force -PassThru -ErrorAction Stop -WhatIf:$Test
+                                try
+                                {
+                                    Write-Host "Permission granted, copying file over" -ForegroundColor Green
+                                    Move-Item -Path $MovieItemTempPath -Destination $FinalMoviePath -Force -PassThru -ErrorAction Stop -WhatIf:$Test
+                                    Write-Host "SUCCESS! Moved file: $MovieItemTempPath" -ForegroundColor Green
+                                }
+                                catch
+                                {
+                                    Write-Host "Error encountered copying file ($MovieItemName)" -ForegroundColor Red
+                                    exit
+                                }
                             }
                             else
                             {
@@ -182,7 +210,7 @@ if ($Results)
             {
                 try
                 {
-                    Write-Host "Removing temp folder ($TempMovieDirectory)"
+                    Write-Host "Removing temp folder: ($TempMovieDirectory)"
                     Remove-Item -Path $TempMovieDirectory -Force -Recurse -ErrorAction Stop -WhatIf:$Test
                 }
                 catch
