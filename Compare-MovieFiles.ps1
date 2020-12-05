@@ -31,7 +31,7 @@
         [switch]$Test = $false
     )
 
-#ScriptVersion = "1.0.1.5"
+#ScriptVersion = "1.0.1.6"
 
 $old = Get-ChildItem -Path $CurrentMovieDirectory
 $new = Get-ChildItem -Path $NewMovieDirectory
@@ -166,6 +166,11 @@ if ($Results)
                                     Write-Host "Error encountered copying file ($MovieItemName)" -ForegroundColor Red
                                     exit
                                 }
+                            }
+                            # Skip interaction if subtitle file
+                            elseif ($MovieItemName -like "$Result.srt")
+                            {
+                                $Answer2 = "y"
                             }
                             else
                             {
