@@ -31,7 +31,7 @@
         [switch]$Test = $false
     )
 
-#ScriptVersion = "1.0.1.6"
+#ScriptVersion = "1.0.2.0"
 
 $old = Get-ChildItem -Path $CurrentMovieDirectory
 $new = Get-ChildItem -Path $NewMovieDirectory
@@ -63,6 +63,7 @@ if ($Results)
             $MovieComparison = Compare-Object -ReferenceObject $NewMovieFiles -DifferenceObject $ExistingMovieFiles -Property Name -IncludeEqual
             $MKVMoviePath = Join-Path -Path $FinalMoviePath -ChildPath "$Result.mkv"
             $MP4MoviePath = Join-Path -Path $FinalMoviePath -ChildPath "$Result.mp4"
+            $AVIMoviePath = Join-Path -Path $FinalMoviePath -ChildPath "$Result.avi"
             $SRTMoviePath = Join-Path -Path $FinalMoviePath -ChildPath "$Result.srt"
             $NFOMoviePath = Join-Path -Path $FinalMoviePath -ChildPath "$Result.nfo"
             $BIFMoviePath = Join-Path -Path $FinalMoviePath -ChildPath "$Result-320-10.bif"
@@ -152,13 +153,21 @@ if ($Results)
                         else
                         {
                             # Skip interaction if relacing .MKV file with .MP4 file
-                            if (($MovieItemName -like "$Result.mp4") -and (Test-Path $MKVMoviePath))
+                            if ($MovieItemName -like "$Result.mp4")
                             {
+                                if (Test-Path $MKVMoviePath)
+                                {
+                                    $RemoveThis = $MKVMoviePath
+                                }
+                                elseif (Test-Path $AVIMoviePath)
+                                {
+                                    $RemoveThis = $AVIMoviePath
+                                }
                                 try
                                 {
-                                    Write-Host "Copying new .MP4 file over existing .MKV file" -ForegroundColor Blue
-                                    Remove-Item -Path $MKVMoviePath -Force -ErrorAction Stop -WhatIf:$Test
-                                    Write-Host "SUCCESS! Removed file: $MKVMoviePath" -ForegroundColor Green
+                                    Write-Host "Copying new .MP4 file over existing .MKV/.AVI file" -ForegroundColor Blue
+                                    Remove-Item -Path $RemoveThis -Force -ErrorAction Stop -WhatIf:$Test
+                                    Write-Host "SUCCESS! Removed file: $RemoveThis" -ForegroundColor Green
                                     $Answer2 = "y"
                                 }
                                 catch
